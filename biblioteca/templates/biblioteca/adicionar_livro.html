@@ -1,0 +1,95 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4 text-center">Adicionar um novo livro</h1>
+
+    <form method="POST" class="mx-auto" style="max-width: 500px;">
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-4">Detalhes do Livro</h5>
+
+                <div class="form-group mb-3">
+                    <label for="id_titulo">Título</label>
+                    <input type="text" class="form-control" name="titulo" id="id_titulo" placeholder="Título do livro">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="id_autor">Autor</label>
+                    <input type="text" class="form-control" name="autor" id="id_autor" placeholder="Nome do autor">
+                    <ul id="autores-list" class="list-group" style="display: none;"></ul> <!-- Lista de sugestões -->
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="id_editora">Editora</label>
+                    <input type="text" class="form-control" name="editora" id="id_editora" placeholder="Nome da editora">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="id_ano">Ano</label>
+                    <input type="text" class="form-control" name="ano" id="id_ano" placeholder="Ano de publicação">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="id_categoria">Categoria</label>
+                    <input type="text" class="form-control" name="categoria" id="id_categoria" placeholder="Categoria do livro">
+                    <ul id="categorias-list" class="list-group" style="display: none;"></ul> <!-- Lista de sugestões -->
+                </div>
+
+                <button type="submit" class="btn btn-success">Adicionar Livro</button>
+                <a href="{% url 'pagina_inicial' %}" class="btn btn-secondary">Voltar</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById("id_autor").addEventListener("input", function() {
+        let query = this.value;
+        if (query.length >= 2) {  // Só faz a busca se o texto tiver 2 ou mais caracteres
+            fetch(`/api/sugestoes/?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    let list = document.getElementById("autores-list");
+                    list.innerHTML = "";  // Limpa a lista anterior
+                    data.autores.forEach(autor => {
+                        let item = document.createElement("li");
+                        item.classList.add("list-group-item");
+                        item.textContent = autor;
+                        item.onclick = function() {
+                            document.getElementById("id_autor").value = autor;  // Preenche o campo com o autor selecionado
+                            list.style.display = "none";  // Esconde a lista
+                        };
+                        list.appendChild(item);
+                    });
+                    list.style.display = data.autores.length ? "block" : "none";  // Exibe a lista se houver resultados
+                });
+        }
+    });
+
+    document.getElementById("id_categoria").addEventListener("input", function() {
+        let query = this.value;
+        if (query.length >= 2) {
+            fetch(`/api/sugestoes/?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    let list = document.getElementById("categorias-list");
+                    list.innerHTML = "";  // Limpa a lista anterior
+                    data.categorias.forEach(categoria => {
+                        let item = document.createElement("li");
+                        item.classList.add("list-group-item");
+                        item.textContent = categoria;
+                        item.onclick = function() {
+                            document.getElementById("id_categoria").value = categoria;  // Preenche o campo com a categoria selecionada
+                            list.style.display = "none";  // Esconde a lista
+                        };
+                        list.appendChild(item);
+                    });
+                    list.style.display = data.categorias.length ? "block" : "none";  // Exibe a lista se houver resultados
+                });
+        }
+    });
+</script>
+{% endblock %}

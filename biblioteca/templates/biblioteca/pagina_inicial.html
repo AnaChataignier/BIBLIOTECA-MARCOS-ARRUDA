@@ -1,0 +1,135 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4" style="text-align: center; font-weight: bold;">BIBLIOTECA MARCOS ARRUDA</h1>
+    {% if mensagem_erro %}
+        <p class="alert alert-danger">{{ mensagem_erro }}</p>
+    {% endif %}
+
+    <div class="row">
+        <!-- Coluna Lateral de Categorias -->
+        <div class="col-md-2">
+            <h2 class="mt-4">Categorias</h2>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Categoria</th>
+                            <th scope="col">Livros</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for categoria in categorias %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'livros_por_categoria' categoria.nome|urlencode %}"
+                                    class="{% if categoria.nome == categoria_selecionada %}fw-bold text-primary{% endif %}">
+                                        {{ categoria.nome }}
+                                    </a>
+                                </td>
+                                <td>{{ categoria.contagem }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Coluna Principal de Livros -->
+        <div class="col-md-8">
+            <!-- Botões acima da tabela -->
+            <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+                <form action="{% url 'buscar_livros' %}" method="get" class="d-flex align-items-center">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" name="query" class="form-control" placeholder="Digite sua busca">
+                    </div>
+                    <button type="submit" class="btn btn-secondary ms-2">Buscar</button>
+                </form>
+                <div>
+                    <a href="{% url 'adicionar_livro' %}" class="btn btn-success me-2">
+                        <i class="bi bi-plus-circle"></i> Adicionar Livro
+                    </a>
+                    <a href="{% url 'pagina_inicial' %}" class="btn btn-primary">
+                        <i class="bi bi-house"></i> Início
+                    </a>
+                </div>
+            </div>
+
+            <table class="table table-bordered table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Título</th>
+                        <th scope="col">Autor</th>
+                        <th scope="col">Tema</th>
+                        <th scope="col">Editora</th>
+                        <th scope="col">Ano</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for livro in livros %}
+                        <tr>
+                            <th scope="row">{{ livro.id }}</th>
+                            <td>{{ livro.titulo }}</td>
+                            <td>
+                                <a href="{% url 'livros_por_autor' livro.autor|urlencode %}"
+                                   class="{% if livro.autor == autor_selecionado %}fw-bold text-primary{% endif %}">
+                                    {{ livro.autor }}
+                                </a>
+                            </td>
+                            <td>{{ livro.categoria }}</td>
+                            <td>{{ livro.editora }}</td>
+                            <td>{{ livro.ano }}</td>
+                            <td>
+                                <a href="{% url 'editar_livro' livro.id %}" class="btn btn-warning btn-sm">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a>
+                                <!-- Botão para abrir o modal -->
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deletarModal{{ livro.id }}">
+                                    <i class="bi bi-trash"></i> Deletar
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+{% for livro in livros %}
+<div class="modal fade" id="deletarModal{{ livro.id }}" tabindex="-1" aria-labelledby="deletarModalLabel{{ livro.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletarModalLabel{{ livro.id }}">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Você tem certeza que deseja deletar o livro "{{ livro.titulo }}"?
+            </div>
+            <div class="modal-footer">
+                <!-- Botão de Cancelar -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                
+                <!-- Formulário de Exclusão -->
+                <form action="{% url 'deletar_livro' livro.id %}" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Deletar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+
+{% endblock %}
