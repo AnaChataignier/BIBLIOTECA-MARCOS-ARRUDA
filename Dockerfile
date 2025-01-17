@@ -1,14 +1,14 @@
-FROM python:3.12-slim
-
+# Usar uma imagem oficial do Python como base
+FROM python:3.10-slim
+# Configurar o diretório de trabalho dentro do container
 WORKDIR /app
-
+# Copiar os arquivos de dependências para o container
 COPY requirements.txt .
-
-RUN apt-get update && apt-get install -y gcc libpq-dev \
-    && pip install --no-cache-dir -r requirements.txt
-
+# Instalar as dependências
+RUN pip install --no-cache-dir -r requirements.txt
+# Copiar todos os arquivos do projeto para o container
 COPY . .
-
+# Expor a porta padrão usada pelo Django (8000)
 EXPOSE 8000
-
-CMD ["gunicorn", "projeto.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Configurar o comando de inicialização do Django
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
