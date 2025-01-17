@@ -1,31 +1,14 @@
-# Use uma imagem oficial do Python
-FROM python:3.10-slim
+FROM python:3.10-slim-bullseye
 
-# Configurar o diretório de trabalho
 WORKDIR /app
 
-# Instalar dependências do sistema necessárias
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libssl-dev \
-    libffi-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    zlib1g-dev \
-    curl \
-    && apt-get clean
-
-# Copiar os arquivos de dependências
 COPY requirements.txt .
 
-# Instalar as dependências do Python
-RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y gcc libpq-dev \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Copiar todos os arquivos do projeto
 COPY . .
 
-# Expor a porta padrão usada pelo Django (8000)
 EXPOSE 8000
 
-# Comando para iniciar o Django
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "projeto.wsgi:application", "--bind", "0.0.0.0:8000"]
