@@ -1,13 +1,25 @@
 app = "biblioteca"
 
-[build]
-image = "python:3.10-slim"
+kill_signal = "SIGINT"
+kill_timeout = 5
+processes = []
 
 [env]
-PYTHON_VERSION = "3.10"
-SECRET_KEY = "django-insecure-v4^cqki5=m3mkjh8!zunlf*ane*^vho7a=0&zev+ng2z9(&ycw"
-DEBUG = "true"
+    PORT = "8000" # Django usa a porta 8000 por padrão
+    SECRET_KEY = "django-insecure-v4^cqki5=m3mkjh8!zunlf*ane*^vho7a=0&zev+ng2z9(&ycw"
+    DJANGO_SETTINGS_MODULE = "setup.settings"
 
-[http_service]
-internal_port = 8000
-force_https = true
+[experimental]
+  auto_rollback = true
+
+[[services]]
+  internal_port = 8000
+  protocol = "tcp"
+
+[[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+[[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443

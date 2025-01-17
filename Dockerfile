@@ -1,14 +1,23 @@
-# Usar uma imagem oficial do Python como base
+# Usar uma imagem oficial do Python
 FROM python:3.10-slim
-# Configurar o diretório de trabalho dentro do container
+
+# Configurar o diretório de trabalho
 WORKDIR /app
-# Copiar os arquivos de dependências para o container
+
+# Instalar dependências do sistema
+RUN apt-get update && apt-get install -y build-essential libssl-dev libffi-dev && apt-get clean
+
+# Copiar os arquivos de dependências
 COPY requirements.txt .
-# Instalar as dependências
+
+# Instalar dependências do Python
 RUN pip install --no-cache-dir -r requirements.txt
-# Copiar todos os arquivos do projeto para o container
+
+# Copiar todos os arquivos do projeto
 COPY . .
+
 # Expor a porta padrão usada pelo Django (8000)
 EXPOSE 8000
-# Configurar o comando de inicialização do Django
+
+# Comando para iniciar o Django
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
