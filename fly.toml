@@ -1,2 +1,13 @@
+app = "biblioteca"
+
 [build]
 image = "python:3.10-slim"
+
+[env]
+PYTHON_VERSION = "3.10"
+SECRET_KEY = "django-insecure-v4^cqki5=m3mkjh8!zunlf*ane*^vho7a=0&zev+ng2z9(&ycw"
+DEBUG = "true"
+
+[http_service]
+internal_port = 8000
+force_https = true
